@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Attack Systems</title>
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/attack.css">
+
+  <script>
+    if (localStorage.getItem("isLoggedIn") !== "true") {
+      window.location.href = "brief.html";
+    }
+  </script>
+</head>
+<body>
+
+<header>
+  <h1>Attack Systems</h1>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="#" class="logout" onclick="logout()">Logout</a>
+  </nav>
+</header>
+
+<div class="container attack">
+</div>
+
+<script>
+  function logout() {
+    localStorage.removeItem("isLoggedIn");
+    window.location.href = "brief.html";
+  }
+</script>
+
+</body>
+</html>

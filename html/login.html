@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Secure Access – Drone Command</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/login.css">
+</head>
+<body class="login-page">
+
+<header class="main-nav">
+  <div class="nav-container">
+    <div class="logo">
+      <span class="logo-icon">◆</span>
+      <span class="logo-text">DRONE COMMAND</span>
+    </div>
+    <nav class="nav-links">
+      <a href="brief.html">BRIEF</a>
+      <a href="login.html" class="active">SECURE ACCESS</a>
+    </nav>
+  </div>
+</header>
+
+<section class="login-section">
+  <div class="login-background">
+    <div class="scan-line"></div>
+    <div class="grid-overlay"></div>
+  </div>
+
+  <div class="login-container">
+    <div class="login-header">
+      <div class="security-badge">
+        <div class="badge-inner">
+          <span class="badge-icon">●</span>
+          <span class="badge-status">SECURE</span>
+        </div>
+      </div>
+      <h1 class="login-title">AUTHORIZED ACCESS</h1>
+      <p class="login-subtitle">Military-grade authentication required</p>
+    </div>
+
+    <form class="login-form" id="loginForm">
+      <div class="form-group">
+        <label class="form-label">OPERATOR ID</label>
+        <input id="username" type="text" class="form-input" placeholder="Enter authorization code" required>
+        <div class="input-line"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">ACCESS KEY</label>
+        <input id="password" type="password" class="form-input" placeholder="Enter secure passphrase" required>
+        <div class="input-line"></div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full">
+        <span>AUTHENTICATE</span>
+        <span class="btn-arrow">→</span>
+      </button>
+
+      <div class="security-notice">
+        <div class="notice-icon">!</div>
+        <p>
+          This system is restricted to authorized personnel only.
+          All access attempts are logged and monitored.
+        </p>
+      </div>
+    </form>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.getElementById("loginForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value;
+
+    if (username === "admin" && password === "drone@123") {
+      localStorage.setItem("isLoggedIn", "true");
+      window.location.replace("index.html");
+    } else {
+      alert("Invalid credentials. Use admin / drone@123");
+    }
+  });
+</script>
+
+</body>
+</html>

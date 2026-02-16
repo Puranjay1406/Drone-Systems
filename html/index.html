@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DRONE COMMAND – Military Drone Solutions</title>
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/home.css">
+
+  <!-- Protection: redirect if not logged in -->
+  <script>
+    if (localStorage.getItem("isLoggedIn") !== "true") {
+      window.location.replace("brief.html");
+    }
+  </script>
+</head>
+<body class="home-page">
+
+<header class="main-nav">
+  <div class="nav-container">
+    <div class="logo">
+      <span class="logo-icon">◆</span>
+      <span class="logo-text">DRONE COMMAND</span>
+    </div>
+    <nav class="nav-links">
+      <a href="index.html" class="active">HOME</a>
+      <a href="recon.html">RECON</a>
+      <a href="attack.html">ATTACK</a>
+      <a href="supply.html">SUPPLY</a>
+      <a href="#" class="logout" id="logoutBtn">LOGOUT</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-label"><br>ADVANCED UNMANNED SYSTEMS</div>
+    <h1 class="hero-title">
+      <span class="title-line">NEXT GENERATION</span>
+      <span class="title-line highlight">AERIAL OPERATIONS</span>
+    </h1>
+    <p class="hero-subtitle">
+      Strategic unmanned aerial systems engineered for reconnaissance,
+      precision strike, and tactical logistics in critical operations.
+    </p>
+    <div class="hero-cta">
+      <a href="recon.html" class="btn btn-primary">RECON SYSTEMS</a>
+      <a href="attack.html" class="btn btn-secondary">ATTACK SYSTEMS</a>
+    </div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat-item">
+      <div class="stat-number">24/7</div>
+      <div class="stat-label">OPERATIONAL</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">98%</div>
+      <div class="stat-label">MISSION SUCCESS</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">50+</div>
+      <div class="stat-label">ACTIVE UNITS</div>
+    </div>
+  </div>
+</section>
+
+<section class="capabilities">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">CORE CAPABILITIES</div>
+      <h2 class="section-title">Mission-Critical Systems</h2>
+    </div>
+
+    <div class="capabilities-grid">
+      <div class="capability-card">
+        <div class="card-icon">📷</div>
+        <h3 class="card-title">RECONNAISSANCE</h3>
+        <p class="card-desc">
+          Advanced surveillance and intelligence gathering with real-time data transmission.
+        </p>
+        <a href="recon.html" class="card-link">VIEW SYSTEMS →</a>
+      </div>
+
+      <div class="capability-card">
+        <div class="card-icon">🚀</div>
+        <h3 class="card-title">ATTACK</h3>
+        <p class="card-desc">
+          Precision strike platforms with autonomous targeting and multi-payload deployment.
+        </p>
+        <a href="attack.html" class="card-link">VIEW SYSTEMS →</a>
+      </div>
+
+      <div class="capability-card">
+        <div class="card-icon">📦</div>
+        <h3 class="card-title">SUPPLY</h3>
+        <p class="card-desc">
+          Tactical logistics drones for resupply in contested and remote environments.
+        </p>
+        <a href="supply.html" class="card-link">VIEW SYSTEMS →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="main-footer">
+  <div class="container footer-content">
+    <div class="footer-section">
+      <div class="footer-logo">
+        <span class="logo-icon">◆</span>
+        <span class="logo-text">DRONE COMMAND</span>
+      </div>
+      <p class="footer-tagline">Advanced Unmanned Aerial Systems</p>
+    </div>
+
+    <div class="footer-section">
+      <h4 class="footer-title">NAVIGATION</h4>
+      <ul class="footer-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="recon.html">Recon</a></li>
+        <li><a href="attack.html">Attack</a></li>
+        <li><a href="supply.html">Supply</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-section">
+      <h4 class="footer-title">SECURE CONTACT</h4>
+      <p class="footer-info">secure@dronecommand.mil</p>
+      <p class="footer-info">+91-00000-00000</p>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>&copy; 2026 DRONE COMMAND. CLASSIFIED TECHNOLOGY.</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("logoutBtn").addEventListener("click", function (e) {
+    e.preventDefault();
+    localStorage.removeItem("isLoggedIn");
+    window.location.replace("brief.html");
+  });
+</script>
+
+</body>
+</html>
