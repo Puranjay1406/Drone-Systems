@@ -1,34 +1,117 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Supply Operations</title>
+  <meta charset="UTF-8">
+  <title>Supply – Drone Command</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../css/theme.css">
   <link rel="stylesheet" href="../css/supply.css">
-
   <script>
     if (localStorage.getItem("isLoggedIn") !== "true") {
-      window.location.href = "brief.html";
+      window.location.replace("brief.html");
     }
   </script>
 </head>
-<body>
+<body class="supply-page">
 
-<header>
-  <h1>Supply Operations</h1>
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="#" class="logout" onclick="logout()">Logout</a>
-  </nav>
+<header class="main-nav">
+  <div class="nav-container">
+    <div class="logo">
+      <span class="logo-icon">◆</span>
+      <span class="logo-text">DRONE COMMAND</span>
+    </div>
+    <nav class="nav-links">
+      <a href="index.html">HOME</a>
+      <a href="recon.html">RECON</a>
+      <a href="attack.html">ATTACK</a>
+      <a href="supply.html" class="active">SUPPLY</a>
+      <a href="#" id="logoutBtn">LOGOUT</a>
+    </nav>
+  </div>
 </header>
 
-<div class="container supply">
-</div>
+<section class="supply-hero">
+  <div class="supply-hero-bg">
+    <div class="industrial-pattern"></div>
+    <div class="cargo-pulse"></div>
+  </div>
+  <div class="container">
+    <div class="supply-hero-content">
+      <div class="supply-hero-badge">LOGISTICS SUPPORT</div>
+      <h1 class="supply-title">TACTICAL CARGO SYSTEMS</h1>
+      <p class="supply-subtitle">Autonomous logistics and resupply platforms.</p>
+    </div>
+  </div>
+</section>
+
+<section class="mission-section container">
+  <h2 class="section-title">Mission Parameters</h2>
+
+  <div class="mission-form">
+    <input type="number" placeholder="Distance (km)">
+    <input type="number" placeholder="Cargo Load (kg)">
+    <input type="number" placeholder="Duration (min)">
+    <select>
+      <option>Drop</option>
+      <option>Land</option>
+    </select>
+    <button class="btn supply-recommend-btn">RECOMMEND DRONE</button>
+  </div>
+</section>
+
+<section class="supply-systems container">
+  <div class="systems-header">
+    <h2 class="section-title">Recommended Drone</h2>
+    <div class="supply-header-line"></div>
+  </div>
+
+  <div class="supply-grid">
+    <div class="supply-card">
+      <div class="supply-card-header">
+        <span class="supply-card-designation">RECOMMENDED DRONE</span>
+        <span class="supply-card-status">
+          <span class="supply-status-dot"></span> OPTIMAL
+        </span>
+      </div>
+
+      <h3 class="supply-model-name">TITAN HAULER</h3>
+      <p class="supply-model-desc">
+        Heavy-lift logistics drone built for long-range cargo delivery in contested environments.
+      </p>
+
+      <div class="supply-specs">
+        <div class="spec-row">
+          <span class="spec-name">Range</span>
+          <span class="supply-spec-dots"></span>
+          <span class="spec-val">300 km</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-name">Payload</span>
+          <span class="supply-spec-dots"></span>
+          <span class="spec-val">50 kg</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-name">Endurance</span>
+          <span class="supply-spec-dots"></span>
+          <span class="spec-val">8 hrs</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-name">Delivery</span>
+          <span class="supply-spec-dots"></span>
+          <span class="spec-val">Drop / Land</span>
+        </div>
+      </div>
+
+      <button class="supply-select-btn">SELECT DRONE</button>
+    </div>
+  </div>
+</section>
 
 <script>
-  function logout() {
+  document.getElementById("logoutBtn").onclick = function () {
     localStorage.removeItem("isLoggedIn");
-    window.location.href = "brief.html";
-  }
+    window.location.replace("brief.html");
+  };
 </script>
 
 </body>
