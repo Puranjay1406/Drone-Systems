@@ -48,19 +48,22 @@
   <h2 class="section-title">Mission Parameters</h2>
 
   <div class="mission-form">
-    <input type="number" placeholder="Distance (km)">
-    <input type="number" placeholder="Duration (min)">
-    <select>
-      <option>EO / Optical</option>
-      <option>Thermal</option>
-      <option>IR</option>
+    <input type="number" id="recon-distance" placeholder="Distance (km)" min="0">
+    <input type="number" id="recon-duration" placeholder="Duration (hrs)" min="0" step="0.5">
+    <select id="recon-sensor">
+      <option value="">Sensor Type</option>
+      <option value="EO">EO / Optical</option>
+      <option value="Thermal">Thermal</option>
+      <option value="IR">IR</option>
+      <option value="SAR">SAR Radar</option>
     </select>
-    <select>
-      <option>Low Stealth</option>
-      <option>Medium Stealth</option>
-      <option>High Stealth</option>
+    <select id="recon-stealth">
+      <option value="">Stealth Required</option>
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
     </select>
-    <button class="btn btn-primary">RECOMMEND DRONE</button>
+    <button class="btn btn-primary" id="recon-btn">RECOMMEND DRONE</button>
   </div>
 </section>
 
@@ -75,35 +78,34 @@
       <div class="recon-card-header">
         <span class="recon-card-designation">RECOMMENDED DRONE</span>
         <span class="recon-card-status">
-          <span class="recon-status-dot active"></span> OPTIMAL
+          <span class="recon-status-dot"></span>
+          <span id="recon-condition">—</span>
         </span>
       </div>
 
-      <h3 class="recon-model-name">SHADOW HAWK</h3>
-      <p class="recon-model-desc">
-        Long-endurance ISR platform with multi-sensor payload and low observable profile.
-      </p>
+      <h3 class="recon-model-name" id="recon-name">—</h3>
+      <p class="recon-model-desc" id="recon-sensors">Enter mission parameters above and click Recommend Drone.</p>
 
       <div class="recon-specs">
         <div class="spec-row">
           <span class="spec-name">Range</span>
           <span class="recon-spec-dots"></span>
-          <span class="spec-val">500 km</span>
+          <span class="spec-val" id="recon-range">— km</span>
         </div>
         <div class="spec-row">
           <span class="spec-name">Endurance</span>
           <span class="recon-spec-dots"></span>
-          <span class="spec-val">10 hrs</span>
-        </div>
-        <div class="spec-row">
-          <span class="spec-name">Sensors</span>
-          <span class="recon-spec-dots"></span>
-          <span class="spec-val">EO + IR</span>
+          <span class="spec-val" id="recon-endurance">— hrs</span>
         </div>
         <div class="spec-row">
           <span class="spec-name">Stealth</span>
           <span class="recon-spec-dots"></span>
-          <span class="spec-val">High</span>
+          <span class="spec-val" id="recon-stealth-val">—</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-name">Payload</span>
+          <span class="recon-spec-dots"></span>
+          <span class="spec-val" id="recon-payload">— kg</span>
         </div>
       </div>
 
@@ -115,8 +117,43 @@
 <script>
   document.getElementById("logoutBtn").onclick = function () {
     localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("username");
+    localStorage.removeItem("full_name");
+    localStorage.removeItem("role");
     window.location.replace("brief.html");
   };
+
+  document.getElementById("recon-btn").addEventListener("click", async function () {
+    const distance = document.getElementById("recon-distance").value;
+    const duration = document.getElementById("recon-duration").value;
+    const stealth  = document.getElementById("recon-stealth").value;
+
+    const params = new URLSearchParams({ type: "recon" });
+    if (distance) params.append("range_km", distance);
+    if (duration) params.append("endurance_hrs", duration);
+    if (stealth)  params.append("stealth_level", stealth);
+
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/drones/recommend?${params}`);
+      const drone = await response.json();
+
+      if (drone.name) {
+        document.getElementById("recon-name").textContent      = drone.name;
+        document.getElementById("recon-sensors").textContent   = drone.sensors;
+        document.getElementById("recon-range").textContent     = drone.range_km + " km";
+        document.getElementById("recon-endurance").textContent = drone.endurance_hrs + " hrs";
+        document.getElementById("recon-stealth-val").textContent = drone.stealth_level.toUpperCase();
+        document.getElementById("recon-payload").textContent   = drone.payload_kg + " kg";
+        document.getElementById("recon-condition").textContent = drone.drone_condition.toUpperCase();
+      } else {
+        document.getElementById("recon-name").textContent    = "No match found";
+        document.getElementById("recon-sensors").textContent = "Try adjusting your mission parameters.";
+      }
+    } catch (error) {
+      document.getElementById("recon-name").textContent    = "Connection error";
+      document.getElementById("recon-sensors").textContent = "Make sure the backend is running on port 5000.";
+    }
+  });
 </script>
 
 </body>

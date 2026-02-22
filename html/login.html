@@ -53,6 +53,10 @@
         <div class="input-line"></div>
       </div>
 
+      <p id="error-msg" style="color: red; font-size: 0.8rem; display: none; margin-bottom: 1rem;">
+        Invalid credentials. Access denied.
+      </p>
+
       <button type="submit" class="btn btn-primary btn-full">
         <span>AUTHENTICATE</span>
         <span class="btn-arrow">→</span>
@@ -66,22 +70,36 @@
         </p>
       </div>
     </form>
-    </div>
   </div>
 </section>
 
 <script>
-  document.getElementById("loginForm").addEventListener("submit", function (e) {
+  document.getElementById("loginForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value;
+    const errorMsg = document.getElementById("error-msg");
 
-    if (username === "admin" && password === "drone@123") {
-      localStorage.setItem("isLoggedIn", "true");
-      window.location.replace("index.html");
-    } else {
-      alert("Invalid credentials. Use admin / drone@123");
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:5000/login?username=${username}&password=${password}`
+      );
+      const data = await response.json();
+
+      if (data.success) {
+        // store user info for use across pages
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("username", data.username);
+        localStorage.setItem("full_name", data.full_name);
+        localStorage.setItem("role", data.role);
+        window.location.replace("index.html");
+      } else {
+        errorMsg.style.display = "block";
+      }
+    } catch (error) {
+      errorMsg.textContent = "Could not connect to server. Make sure the backend is running.";
+      errorMsg.style.display = "block";
     }
   });
 </script>

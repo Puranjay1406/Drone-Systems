@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Attack – Drone Command</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="../css/theme.css" />
-  <link rel="stylesheet" href="../css/attack.css" />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/attack.css">
   <script>
     if (localStorage.getItem("isLoggedIn") !== "true") {
       window.location.replace("brief.html");
@@ -37,7 +36,6 @@
     <div class="pulse-rings"></div>
     <div class="scan-beams"></div>
   </div>
-
   <div class="container attack-hero-content">
     <div class="hero-text">
       <span class="hero-badge glow">COMBAT OPERATIONS</span>
@@ -56,14 +54,21 @@
     <h2 class="section-title futuristic">Mission Parameters</h2>
 
     <div class="mission-form">
-      <input type="number" placeholder="Distance (km)" />
-      <input type="number" placeholder="Cargo Load (kg)" />
-      <input type="number" placeholder="Duration (min)" />
-      <select>
-        <option>Precision Strike</option>
-        <option>Area Suppression</option>
+      <input type="number" id="attack-distance" placeholder="Distance (km)" min="0">
+      <input type="number" id="attack-payload" placeholder="Payload Required (kg)" min="0">
+      <input type="number" id="attack-duration" placeholder="Duration (hrs)" min="0" step="0.5">
+      <select id="attack-strike">
+        <option value="">Strike Mode</option>
+        <option value="precision">Precision Strike</option>
+        <option value="area_suppression">Area Suppression</option>
       </select>
-      <button class="btn btn-primary attack-recommend-btn">RECOMMEND DRONE</button>
+      <select id="attack-stealth">
+        <option value="">Stealth Required</option>
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+      </select>
+      <button class="btn btn-primary attack-recommend-btn" id="attack-btn">RECOMMEND DRONE</button>
     </div>
   </div>
 
@@ -76,37 +81,46 @@
     <div class="attack-grid">
       <div class="attack-card">
         <div class="attack-card-header">
-            <span class="attack-card-designation">RECOMMENDED DRONE</span>
-            <span class="attack-card-status">
-            <span class="attack-status-dot"></span> OPTIMAL
-            </span>
-          </div>
+          <span class="attack-card-designation">RECOMMENDED DRONE</span>
+          <span class="attack-card-status">
+            <span class="attack-status-dot"></span>
+            <span id="attack-condition">—</span>
+          </span>
+        </div>
 
-          <h3 class="attack-model-name">PHANTOM BLADE</h3>
-          <p class="attack-model-desc">
-            High-speed strike drone with precision targeting and stealth profile.
-          </p>
+        <h3 class="attack-model-name" id="attack-name">—</h3>
+        <p class="attack-model-desc" id="attack-sensors">Enter mission parameters above and click Recommend Drone.</p>
 
-          <div class="attack-specs">
+        <div class="attack-specs">
           <div class="spec-row">
             <span class="spec-name">Range</span>
             <span class="spec-dots"></span>
-            <span class="spec-val">400 km</span>
+            <span class="spec-val" id="attack-range">— km</span>
           </div>
           <div class="spec-row">
             <span class="spec-name">Payload</span>
             <span class="spec-dots"></span>
-            <span class="spec-val">25 kg</span>
+            <span class="spec-val" id="attack-payload-val">— kg</span>
           </div>
           <div class="spec-row">
             <span class="spec-name">Endurance</span>
             <span class="spec-dots"></span>
-            <span class="spec-val">6 hrs</span>
+            <span class="spec-val" id="attack-endurance">— hrs</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-name">Strike Mode</span>
+            <span class="spec-dots"></span>
+            <span class="spec-val" id="attack-strike-val">—</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-name">Stealth</span>
+            <span class="spec-dots"></span>
+            <span class="spec-val" id="attack-stealth-val">—</span>
           </div>
         </div>
 
-      <button class="attack-btn">SELECT DRONE</button>
-    </div>
+        <button class="attack-btn">SELECT DRONE</button>
+      </div>
     </div>
   </div>
 </section>
@@ -114,8 +128,48 @@
 <script>
   document.getElementById("logoutBtn").onclick = function () {
     localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("username");
+    localStorage.removeItem("full_name");
+    localStorage.removeItem("role");
     window.location.replace("brief.html");
   };
+
+  document.getElementById("attack-btn").addEventListener("click", async function () {
+    const distance = document.getElementById("attack-distance").value;
+    const payload  = document.getElementById("attack-payload").value;
+    const duration = document.getElementById("attack-duration").value;
+    const strike   = document.getElementById("attack-strike").value;
+    const stealth  = document.getElementById("attack-stealth").value;
+
+    const params = new URLSearchParams({ type: "attack" });
+    if (distance) params.append("range_km", distance);
+    if (payload)  params.append("payload_kg", payload);
+    if (duration) params.append("endurance_hrs", duration);
+    if (strike)   params.append("strike_mode", strike);
+    if (stealth)  params.append("stealth_level", stealth);
+
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/drones/recommend?${params}`);
+      const drone = await response.json();
+
+      if (drone.name) {
+        document.getElementById("attack-name").textContent        = drone.name;
+        document.getElementById("attack-sensors").textContent     = drone.sensors;
+        document.getElementById("attack-range").textContent       = drone.range_km + " km";
+        document.getElementById("attack-payload-val").textContent = drone.payload_kg + " kg";
+        document.getElementById("attack-endurance").textContent   = drone.endurance_hrs + " hrs";
+        document.getElementById("attack-strike-val").textContent  = drone.strike_mode.replace("_", " ").toUpperCase();
+        document.getElementById("attack-stealth-val").textContent = drone.stealth_level.toUpperCase();
+        document.getElementById("attack-condition").textContent   = drone.drone_condition.toUpperCase();
+      } else {
+        document.getElementById("attack-name").textContent    = "No match found";
+        document.getElementById("attack-sensors").textContent = "Try adjusting your mission parameters.";
+      }
+    } catch (error) {
+      document.getElementById("attack-name").textContent    = "Connection error";
+      document.getElementById("attack-sensors").textContent = "Make sure the backend is running on port 5000.";
+    }
+  });
 </script>
 
 </body>

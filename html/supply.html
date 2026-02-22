@@ -48,14 +48,15 @@
   <h2 class="section-title">Mission Parameters</h2>
 
   <div class="mission-form">
-    <input type="number" placeholder="Distance (km)">
-    <input type="number" placeholder="Cargo Load (kg)">
-    <input type="number" placeholder="Duration (min)">
-    <select>
-      <option>Drop</option>
-      <option>Land</option>
+    <input type="number" id="supply-distance" placeholder="Distance (km)" min="0">
+    <input type="number" id="supply-cargo" placeholder="Cargo Weight (kg)" min="0">
+    <input type="number" id="supply-duration" placeholder="Duration (hrs)" min="0" step="0.5">
+    <select id="supply-delivery">
+      <option value="">Delivery Mode</option>
+      <option value="drop">Drop</option>
+      <option value="land">Land</option>
     </select>
-    <button class="btn supply-recommend-btn">RECOMMEND DRONE</button>
+    <button class="btn supply-recommend-btn" id="supply-btn">RECOMMEND DRONE</button>
   </div>
 </section>
 
@@ -70,35 +71,34 @@
       <div class="supply-card-header">
         <span class="supply-card-designation">RECOMMENDED DRONE</span>
         <span class="supply-card-status">
-          <span class="supply-status-dot"></span> OPTIMAL
+          <span class="supply-status-dot"></span>
+          <span id="supply-condition">—</span>
         </span>
       </div>
 
-      <h3 class="supply-model-name">TITAN HAULER</h3>
-      <p class="supply-model-desc">
-        Heavy-lift logistics drone built for long-range cargo delivery in contested environments.
-      </p>
+      <h3 class="supply-model-name" id="supply-name">—</h3>
+      <p class="supply-model-desc" id="supply-sensors">Enter mission parameters above and click Recommend Drone.</p>
 
       <div class="supply-specs">
         <div class="spec-row">
           <span class="spec-name">Range</span>
           <span class="supply-spec-dots"></span>
-          <span class="spec-val">300 km</span>
+          <span class="spec-val" id="supply-range">— km</span>
         </div>
         <div class="spec-row">
           <span class="spec-name">Payload</span>
           <span class="supply-spec-dots"></span>
-          <span class="spec-val">50 kg</span>
+          <span class="spec-val" id="supply-payload">— kg</span>
         </div>
         <div class="spec-row">
           <span class="spec-name">Endurance</span>
           <span class="supply-spec-dots"></span>
-          <span class="spec-val">8 hrs</span>
+          <span class="spec-val" id="supply-endurance">— hrs</span>
         </div>
         <div class="spec-row">
           <span class="spec-name">Delivery</span>
           <span class="supply-spec-dots"></span>
-          <span class="spec-val">Drop / Land</span>
+          <span class="spec-val" id="supply-delivery-val">—</span>
         </div>
       </div>
 
@@ -110,8 +110,45 @@
 <script>
   document.getElementById("logoutBtn").onclick = function () {
     localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("username");
+    localStorage.removeItem("full_name");
+    localStorage.removeItem("role");
     window.location.replace("brief.html");
   };
+
+  document.getElementById("supply-btn").addEventListener("click", async function () {
+    const distance = document.getElementById("supply-distance").value;
+    const cargo    = document.getElementById("supply-cargo").value;
+    const duration = document.getElementById("supply-duration").value;
+    const delivery = document.getElementById("supply-delivery").value;
+
+    const params = new URLSearchParams({ type: "supply" });
+    if (distance) params.append("range_km", distance);
+    if (cargo)    params.append("payload_kg", cargo);
+    if (duration) params.append("endurance_hrs", duration);
+    if (delivery) params.append("delivery_mode", delivery);
+
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/drones/recommend?${params}`);
+      const drone = await response.json();
+
+      if (drone.name) {
+        document.getElementById("supply-name").textContent         = drone.name;
+        document.getElementById("supply-sensors").textContent      = drone.sensors;
+        document.getElementById("supply-range").textContent        = drone.range_km + " km";
+        document.getElementById("supply-payload").textContent      = drone.payload_kg + " kg";
+        document.getElementById("supply-endurance").textContent    = drone.endurance_hrs + " hrs";
+        document.getElementById("supply-delivery-val").textContent = drone.delivery_mode.toUpperCase();
+        document.getElementById("supply-condition").textContent    = drone.drone_condition.toUpperCase();
+      } else {
+        document.getElementById("supply-name").textContent    = "No match found";
+        document.getElementById("supply-sensors").textContent = "Try adjusting your mission parameters.";
+      }
+    } catch (error) {
+      document.getElementById("supply-name").textContent    = "Connection error";
+      document.getElementById("supply-sensors").textContent = "Make sure the backend is running on port 5000.";
+    }
+  });
 </script>
 
 </body>
