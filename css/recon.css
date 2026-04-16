@@ -1,275 +1,130 @@
-/* ===================================
-   RECON PAGE – SLEEK & TACTICAL UI
-   =================================== */
+.recon-page{background:var(--bg-void);min-height:100vh;}
 
-.recon-page {
-  background: radial-gradient(circle at top, #0b1512 0%, var(--bg-primary) 60%);
-  min-height: 100vh;
+.recon-hero{
+  position:relative;min-height:65vh;padding-top:64px;overflow:hidden;
+  background:radial-gradient(ellipse 120% 80% at 50% 0%,rgba(0,255,136,0.08) 0%,var(--bg-void) 65%);
 }
+.recon-hero-bg{position:absolute;inset:0;overflow:hidden;}
 
-/* HERO */
-.recon-hero {
-  position: relative;
-  min-height: 60vh;
-  padding-top: 80px;
-  background: linear-gradient(135deg, #0a0e14 0%, #0d1a1a 100%);
-  overflow: hidden;
-}
-
-.recon-hero-bg { position: absolute; inset: 0; }
-
-.tactical-grid {
-  position: absolute;
-  inset: 0;
+.tactical-grid{
+  position:absolute;inset:0;
   background-image:
-    repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(74, 222, 128, 0.05) 49px, rgba(74, 222, 128, 0.05) 50px),
-    repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(74, 222, 128, 0.05) 49px, rgba(74, 222, 128, 0.05) 50px);
+    repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(0,255,136,0.05) 59px,rgba(0,255,136,0.05) 60px),
+    repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(0,255,136,0.05) 59px,rgba(0,255,136,0.05) 60px);
+  animation:gridScroll 30s linear infinite;
+}
+@keyframes gridScroll{from{transform:translate(0,0);}to{transform:translate(60px,60px);}}
+
+.radar-sweep{
+  position:absolute;top:50%;left:50%;
+  width:600px;height:600px;margin:-300px 0 0 -300px;
+  border-radius:50%;border:1px solid rgba(0,255,136,0.15);
+  animation:radarExpand 5s ease-out infinite;
+}
+@keyframes radarExpand{0%{transform:scale(0.3);opacity:0.8;}100%{transform:scale(2);opacity:0;}}
+
+.recon-hero::before,.recon-hero::after{
+  content:'';position:absolute;width:60px;height:60px;
+  border-color:var(--recon-accent);border-style:solid;opacity:0.35;
+}
+.recon-hero::before{top:80px;left:2rem;border-width:2px 0 0 2px;}
+.recon-hero::after{bottom:2rem;right:2rem;border-width:0 2px 2px 0;}
+
+.recon-hero-content{position:relative;z-index:2;padding:5rem 0 4rem;}
+
+.hero-badge{
+  display:inline-block;padding:0.35rem 1.2rem;
+  border:1px solid var(--recon-accent);color:var(--recon-accent);
+  font-family:var(--font-hud);letter-spacing:0.3em;font-size:0.68rem;margin-bottom:1.5rem;
+  box-shadow:0 0 20px var(--recon-glow),inset 0 0 20px rgba(0,255,136,0.04);
+  animation:reconBadge 3s ease-in-out infinite;
+}
+@keyframes reconBadge{0%,100%{box-shadow:0 0 20px var(--recon-glow);}50%{box-shadow:0 0 40px var(--recon-glow),0 0 70px rgba(0,255,136,0.08);}}
+
+.recon-title{
+  font-family:var(--font-title);font-size:clamp(2rem,5vw,3.8rem);
+  font-weight:900;letter-spacing:0.08em;margin-bottom:1rem;
+  background:linear-gradient(135deg,#fff 20%,var(--recon-accent) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 25px rgba(0,255,136,0.3));
+}
+.recon-subtitle{color:var(--text-secondary);font-size:1rem;line-height:1.8;}
+
+.mission-section{
+  margin:4rem 0;padding:2.5rem;
+  background:linear-gradient(135deg,rgba(0,255,136,0.03),rgba(8,13,20,0.97));
+  border:1px solid rgba(0,255,136,0.18);position:relative;
+}
+.mission-section::before{
+  content:'MISSION CONFIG';font-family:var(--font-hud);font-size:0.6rem;
+  letter-spacing:0.3em;color:var(--recon-accent);opacity:0.6;
+  position:absolute;top:-0.55rem;left:1.5rem;
+  background:var(--bg-void);padding:0 0.5rem;
+}
+.section-title{color:var(--recon-accent);margin-bottom:1.5rem;}
+
+.mission-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.85rem;margin-bottom:1.5rem;}
+.mission-form input:focus,.mission-form select:focus{
+  border-color:var(--recon-accent);
+  box-shadow:0 0 0 2px rgba(0,255,136,0.18),0 0 16px rgba(0,255,136,0.08);
 }
 
-.radar-sweep {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 2px solid rgba(74, 222, 128, 0.2);
-  animation: radarPulse 4s infinite;
+.btn.btn-primary,.recon-page .btn-primary{
+  background:transparent;border:1px solid var(--recon-accent);
+  color:var(--recon-accent);font-family:var(--font-hud);
+  letter-spacing:0.22em;font-size:0.72rem;padding:0.85rem 1.2rem;
+  clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);
+  cursor:pointer;transition:all 0.3s;
 }
+.recon-page .btn-primary:hover{background:rgba(0,255,136,0.1);box-shadow:0 0 25px var(--recon-glow);}
 
-@keyframes radarPulse {
-  0% { transform: scale(0.6); opacity: 0.6; }
-  100% { transform: scale(1.4); opacity: 0; }
+.recon-systems{padding:3rem 0 6rem;}
+.recon-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:2rem;}
+
+.recon-card{
+  position:relative;
+  background:linear-gradient(145deg,rgba(0,255,136,0.05) 0%,rgba(8,13,20,0.98) 50%);
+  border:1px solid rgba(0,255,136,0.22);padding:2rem;
+  transition:transform 0.3s,box-shadow 0.3s;
+  clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,20px 100%,0 calc(100% - 20px));
 }
-
-.recon-hero-content {
-  position: relative;
-  z-index: 2;
-  padding: 4rem 0;
+.recon-card::after{
+  content:'';position:absolute;top:0;right:0;width:20px;height:20px;
+  background:var(--recon-accent);clip-path:polygon(100% 0,0 0,100% 100%);opacity:0.6;
 }
+.recon-card:hover{transform:translateY(-4px);box-shadow:0 0 40px rgba(0,255,136,0.15),0 20px 40px rgba(0,0,0,0.6);}
 
-.hero-badge {
-  display: inline-block;
-  padding: 0.4rem 1rem;
-  border: 1px solid var(--recon-accent);
-  color: var(--recon-accent);
-  letter-spacing: .2em;
-  font-size: .75rem;
-  margin-bottom: 1rem;
+.recon-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;}
+.recon-card-designation{font-family:var(--font-hud);font-size:0.62rem;letter-spacing:0.25em;color:var(--text-muted);}
+.recon-card-status{display:flex;align-items:center;gap:0.4rem;font-family:var(--font-hud);font-size:0.62rem;letter-spacing:0.15em;color:var(--recon-accent);}
+.recon-status-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--recon-accent);
+  box-shadow:0 0 8px var(--recon-accent);animation:reconBlink 2s ease-in-out infinite;
 }
+@keyframes reconBlink{0%,100%{opacity:1;box-shadow:0 0 8px var(--recon-accent);}50%{opacity:0.15;box-shadow:none;}}
 
-.recon-title {
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  margin-bottom: 0.5rem;
+.recon-model-name{
+  font-family:var(--font-title);font-size:clamp(1.2rem,2.5vw,1.65rem);
+  font-weight:700;letter-spacing:0.08em;margin-bottom:0.6rem;color:var(--text-primary);
 }
+.recon-model-desc{color:var(--text-secondary);font-size:0.9rem;margin-bottom:1.5rem;line-height:1.7;}
+.recon-specs{display:flex;flex-direction:column;margin-bottom:1.5rem;}
+.recon-spec-dots{background:repeating-linear-gradient(90deg,rgba(0,255,136,0.25) 0 3px,transparent 3px 7px);}
 
-.recon-subtitle {
-  color: var(--text-secondary);
+.recon-select-btn{
+  width:100%;margin-top:0.5rem;padding:0.85rem 1.2rem;
+  border:1px solid var(--recon-accent);color:var(--recon-accent);background:transparent;
+  font-family:var(--font-hud);letter-spacing:0.22em;font-size:0.7rem;
+  cursor:pointer;transition:all 0.3s;text-transform:uppercase;
+  clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);
+  position:relative;overflow:hidden;
 }
-
-/* MISSION SECTION */
-.mission-section {
-  margin-top: 4rem;
-  padding: 2rem;
-  background: linear-gradient(180deg, #12151f, #0a0e14);
-  border-radius: 10px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.45);
+.recon-select-btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(0,255,136,0.12),transparent);
+  transform:translateX(-100%);transition:transform 0.5s;
 }
+.recon-select-btn:hover{background:rgba(0,255,136,0.08);box-shadow:0 0 25px var(--recon-glow);}
+.recon-select-btn:hover::before{transform:translateX(100%);}
 
-.section-title {
-  margin-bottom: 1.5rem;
-}
-
-/* FORM */
-.mission-form {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.mission-form input,
-.mission-form select {
-  background: #1b1f2a;
-  border: 1px solid #2a2f3a;
-  border-radius: 6px;
-  padding: 0.8rem 0.9rem;
-  color: #fff;
-  font-family: var(--font-body);
-  outline: none;
-}
-
-.mission-form input::placeholder {
-  color: var(--text-muted);
-}
-
-.mission-form input:focus,
-.mission-form select:focus {
-  border-color: var(--recon-accent);
-  box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.35);
-}
-
-/* BUTTON */
-.recon-page .btn-primary {
-  background: var(--recon-accent);
-  border-color: var(--recon-accent);
-  color: var(--bg-primary);
-  font-family: var(--font-secondary);
-  letter-spacing: 0.15em;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.3s ease;
-}
-
-.recon-page .btn-primary:hover {
-  background: transparent;
-  color: var(--recon-accent);
-  box-shadow: 0 0 12px rgba(74, 222, 128, 0.45);
-}
-
-/* RECOMMENDED DRONE SECTION */
-.recon-systems {
-  margin-top: 3rem;
-  padding-bottom: 5rem;
-}
-
-.systems-header {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.recon-header-line {
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, var(--recon-accent), transparent);
-}
-
-.recon-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 2rem;
-}
-
-/* CARD */
-.recon-card {
-  position: relative;
-  background: linear-gradient(180deg, #1b1f2a, #12151f);
-  border-radius: 10px;
-  padding: 2rem;
-  border: 1px solid var(--recon-accent);
-  box-shadow: 0 0 25px rgba(74, 222, 128, 0.15), 0 20px 40px rgba(0,0,0,0.5);
-}
-
-.recon-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.25rem;
-}
-
-.recon-card-designation {
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
-  color: var(--text-muted);
-}
-
-.recon-card-status {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.7rem;
-  letter-spacing: 0.15em;
-  color: var(--recon-accent);
-}
-
-.recon-status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--recon-accent);
-  box-shadow: 0 0 6px var(--recon-accent);
-  animation: blink 1.5s ease-in-out infinite;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-
-.recon-model-name {
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
-  letter-spacing: 0.1em;
-}
-
-.recon-model-desc {
-  color: var(--text-secondary);
-  margin-bottom: 1.5rem;
-  line-height: 1.6;
-}
-
-/* SPECS */
-.recon-specs {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.spec-row {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.spec-name {
-  font-size: 0.8rem;
-  letter-spacing: 0.1em;
-  color: var(--text-muted);
-}
-
-.recon-spec-dots {
-  height: 1px;
-  background: repeating-linear-gradient(
-    to right,
-    rgba(74, 222, 128, 0.4) 0 4px,
-    transparent 4px 8px
-  );
-}
-
-.spec-val {
-  color: var(--text-primary);
-  font-size: 0.85rem;
-}
-
-/* SELECT BUTTON */
-.recon-select-btn {
-  width: 100%;
-  margin-top: 0.5rem;
-  padding: 0.8rem 1.2rem;
-  border: 1px solid var(--recon-accent);
-  color: var(--recon-accent);
-  background: transparent;
-  font-family: var(--font-secondary);
-  letter-spacing: 0.15em;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.3s ease;
-}
-
-.recon-select-btn:hover {
-  background: rgba(74, 222, 128, 0.1);
-  box-shadow: 0 0 12px rgba(74, 222, 128, 0.3);
-}
-
-/* RESPONSIVE */
-@media (max-width: 768px) {
-  .mission-section {
-    padding: 1.5rem;
-  }
-
-  .recon-systems {
-    padding: 0 1rem 3rem;
-  }
-}
+@media(max-width:768px){.mission-section{padding:1.5rem;}.recon-systems{padding:0 0 3rem;}}
