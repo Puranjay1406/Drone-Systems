@@ -1,22 +1,48 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, session
 from flask_cors import CORS
+from functools import wraps
 import mysql.connector
 import os
+import secrets
 
 app = Flask(__name__)
-CORS(app)
+app.secret_key = os.environ.get("FLASK_SECRET_KEY") or secrets.token_hex(32)
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    # SESSION_COOKIE_SECURE=True,  # enable when serving over HTTPS
+)
+
+CORS(
+    app,
+    supports_credentials=True,
+    origins=["http://127.0.0.1:5000", "http://localhost:5000"],
+)
+
 
 # ===================================
 # DATABASE CONNECTION
 # ===================================
 def get_db():
-    conn = mysql.connector.connect(
+    return mysql.connector.connect(
         host="localhost",
-        user="root",        
-        password="ApexAlpha@1406",        
-        database="drone_command"
+        user="root",
+        password="ApexAlpha@1406",
+        database="drone_command",
     )
-    return conn
+
+
+# ===================================
+# AUTH GUARD
+# ===================================
+def require_login(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        if not session.get("user_id"):
+            return jsonify({"error": "not authenticated"}), 401
+        return fn(*args, **kwargs)
+    return wrapper
+
 
 # ===================================
 # SERVE FRONTEND FILES
@@ -24,6 +50,7 @@ def get_db():
 @app.route("/")
 def home():
     return send_from_directory("html", "brief.html")
+
 
 @app.route("/<path:filename>")
 def serve_file(filename):
@@ -36,73 +63,90 @@ def serve_file(filename):
     else:
         return send_from_directory(".", filename)
 
+
 # ===================================
-# LOGIN
+# LOGIN (POST, JSON body, server-side session)
 # ===================================
-@app.route("/login")
+@app.route("/login", methods=["POST"])
 def login():
-    username = request.args.get("username")
-    password = request.args.get("password")
+    data = request.get_json(silent=True) or {}
+    username = (data.get("username") or "").strip()
+    password = data.get("password") or ""
+
+    if not username or not password:
+        return jsonify({"success": False, "error": "missing credentials"}), 400
 
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
     cursor.execute(
         "SELECT * FROM users WHERE username = %s AND password = %s",
-        (username, password)
+        (username, password),
     )
     user = cursor.fetchone()
     cursor.close()
     conn.close()
 
-    if user:
-        return jsonify({
-            "success": True,
-            "username": user["username"],
-            "full_name": user["full_name"],
-            "role": user["role"]
-        })
-    else:
-        return jsonify({"success": False, "message": "Invalid credentials"})
+    if not user:
+        return jsonify({"success": False, "error": "invalid credentials"}), 401
+
+    session.clear()
+    session["user_id"] = user.get("id", user["username"])
+    session["username"] = user["username"]
+    session["full_name"] = user.get("full_name")
+    session["role"] = user.get("role")
+
+    return jsonify({
+        "success": True,
+        "username": user["username"],
+        "full_name": user.get("full_name"),
+        "role": user.get("role"),
+    })
+
+
+@app.route("/logout", methods=["POST"])
+def logout():
+    session.clear()
+    return jsonify({"success": True})
+
+
+@app.route("/me")
+def me():
+    if not session.get("user_id"):
+        return jsonify({"authenticated": False})
+    return jsonify({
+        "authenticated": True,
+        "username": session.get("username"),
+        "full_name": session.get("full_name"),
+        "role": session.get("role"),
+    })
+
 
 # ===================================
-# GET ALL DRONES BY TYPE
-# ===================================
-@app.route("/drones")
-def get_drones():
-    type = request.args.get("type")
-    conn = get_db()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM drones WHERE type = %s", (type,))
-    drones = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return jsonify(drones)
-
-# ===================================
-# RECOMMEND DRONE
+# DRONE RECOMMENDATION (protected)
 # ===================================
 @app.route("/drones/recommend")
-def recommend_drone():
-    type          = request.args.get("type", "")
-    range_km      = int(request.args.get("range_km", 0))
-    payload_kg    = int(request.args.get("payload_kg", 0))
-    endurance_hrs = float(request.args.get("endurance_hrs", 0))
-    stealth_level = request.args.get("stealth_level", "")
-    strike_mode   = request.args.get("strike_mode", "")
-    delivery_mode = request.args.get("delivery_mode", "")
+@require_login
+def recommend():
+    drone_type    = request.args.get("type")
+    range_km      = request.args.get("range_km", type=float)
+    endurance_hrs = request.args.get("endurance_hrs", type=float)
+    payload_kg    = request.args.get("payload_kg", type=float)
+    stealth_level = request.args.get("stealth_level")
+    strike_mode   = request.args.get("strike_mode")
+    delivery_mode = request.args.get("delivery_mode")
 
-    conn = get_db()
-    cursor = conn.cursor(dictionary=True)
+    query = "SELECT * FROM drones WHERE drone_type = %s"
+    params = [drone_type]
 
-    query = """
-        SELECT * FROM drones
-        WHERE type = %s
-        AND range_km >= %s
-        AND payload_kg >= %s
-        AND endurance_hrs >= %s
-    """
-    params = [type, range_km, payload_kg, endurance_hrs]
-
+    if range_km is not None:
+        query += " AND range_km >= %s"
+        params.append(range_km)
+    if endurance_hrs is not None:
+        query += " AND endurance_hrs >= %s"
+        params.append(endurance_hrs)
+    if payload_kg is not None:
+        query += " AND payload_kg >= %s"
+        params.append(payload_kg)
     if stealth_level:
         query += " AND stealth_level = %s"
         params.append(stealth_level)
@@ -113,20 +157,17 @@ def recommend_drone():
         query += " AND delivery_mode = %s"
         params.append(delivery_mode)
 
-    query += " ORDER BY FIELD(drone_condition, 'optimal', 'good', 'damaged', 'under_maintenance') LIMIT 1"
+    query += " ORDER BY range_km ASC LIMIT 1"
 
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
     cursor.execute(query, tuple(params))
     drone = cursor.fetchone()
     cursor.close()
     conn.close()
 
-    if drone:
-        return jsonify(drone)
-    else:
-        return jsonify({"message": "No drone found matching these parameters"})
+    return jsonify(drone or {})
 
-# ===================================
-# RUN SERVER
-# ===================================
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="127.0.0.1", port=5000, debug=True)

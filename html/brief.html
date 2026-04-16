@@ -6,6 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../css/theme.css">
   <link rel="stylesheet" href="../css/brief.css">
+  <script>
+    // Already logged in? Skip the marketing page.
+    if (localStorage.getItem("isLoggedIn") === "true") {
+      window.location.replace("index.html");
+    }
+  </script>
 </head>
 <body class="brief-page">
 

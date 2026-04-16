@@ -9,7 +9,8 @@
   <!-- Protection: redirect if not logged in -->
   <script>
     if (localStorage.getItem("isLoggedIn") !== "true") {
-      window.location.replace("brief.html");
+      const here = window.location.pathname.split("/").pop() || "index.html";
+      window.location.replace(`login.html?next=${encodeURIComponent(here)}`);
     }
   </script>
 </head>
@@ -132,9 +133,20 @@
 </footer>
 
 <script>
-  document.getElementById("logoutBtn").addEventListener("click", function (e) {
+  document.getElementById("logoutBtn").addEventListener("click", async function (e) {
     e.preventDefault();
+    try {
+      await fetch("http://127.0.0.1:5000/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (err) {
+      console.error(err);
+    }
     localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("username");
+    localStorage.removeItem("full_name");
+    localStorage.removeItem("role");
     window.location.replace("brief.html");
   });
 </script>
