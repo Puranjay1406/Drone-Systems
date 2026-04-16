@@ -102,7 +102,7 @@
         </div>
       </div>
 
-      <button class="supply-select-btn">SELECT DRONE</button>
+      <button class="supply-select-btn" id="supply-select-btn" onclick="window._selectDrone('supply')">SELECT DRONE</button>
     </div>
   </div>
 </section>
@@ -151,5 +151,23 @@
   });
 </script>
 
+<script src="../js/drone-sim.js"></script>
+<script>
+  window._selectDrone = function (type) {
+    const name = document.getElementById('supply-name').textContent;
+    if (!name || name === '—' || name === 'No match found' || name === 'Connection error') {
+      alert('Please recommend a drone first before selecting.');
+      return;
+    }
+    DroneSim.trigger({
+      type,
+      name,
+      range_km      : document.getElementById('supply-range').textContent,
+      payload_kg    : document.getElementById('supply-payload').textContent,
+      endurance_hrs : document.getElementById('supply-endurance').textContent,
+      delivery_mode : document.getElementById('supply-delivery-val').textContent,
+    });
+  };
+</script>
 </body>
 </html>

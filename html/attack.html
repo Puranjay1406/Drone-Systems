@@ -119,7 +119,7 @@
           </div>
         </div>
 
-        <button class="attack-btn">SELECT DRONE</button>
+        <button class="attack-btn" id="attack-select-btn" onclick="window._selectDrone('attack')">SELECT DRONE</button>
       </div>
     </div>
   </div>
@@ -172,5 +172,24 @@
   });
 </script>
 
+<script src="../js/drone-sim.js"></script>
+<script>
+  window._selectDrone = function (type) {
+    const name = document.getElementById('attack-name').textContent;
+    if (!name || name === '—' || name === 'No match found' || name === 'Connection error') {
+      alert('Please recommend a drone first before selecting.');
+      return;
+    }
+    DroneSim.trigger({
+      type,
+      name,
+      range_km      : document.getElementById('attack-range').textContent,
+      payload_kg    : document.getElementById('attack-payload-val').textContent,
+      endurance_hrs : document.getElementById('attack-endurance').textContent,
+      stealth_level : document.getElementById('attack-stealth-val').textContent,
+      strike_mode   : document.getElementById('attack-strike-val').textContent,
+    });
+  };
+</script>
 </body>
 </html>
