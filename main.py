@@ -1,7 +1,8 @@
+"""Flask backend for drone command data and static frontend delivery."""
+
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import mysql.connector
-import os
 
 app = Flask(__name__)
 CORS(app)
@@ -10,10 +11,11 @@ CORS(app)
 # DATABASE CONNECTION
 # ===================================
 def get_db():
+    """Create and return a MySQL database connection."""
     conn = mysql.connector.connect(
         host="localhost",
-        user="root",        
-        password="ApexAlpha@1406",        
+        user="root",
+        password="ApexAlpha@1406",
         database="drone_command"
     )
     return conn
@@ -23,24 +25,26 @@ def get_db():
 # ===================================
 @app.route("/")
 def home():
+    """Serve the default briefing page."""
     return send_from_directory("html", "brief.html")
 
 @app.route("/<path:filename>")
 def serve_file(filename):
+    """Serve HTML, CSS, assets, and other static files."""
     if filename.endswith(".html"):
         return send_from_directory("html", filename)
-    elif filename.startswith("css/"):
+    if filename.startswith("css/"):
         return send_from_directory(".", filename)
-    elif filename.startswith("assets/"):
+    if filename.startswith("assets/"):
         return send_from_directory(".", filename)
-    else:
-        return send_from_directory(".", filename)
+    return send_from_directory(".", filename)
 
 # ===================================
 # LOGIN
 # ===================================
 @app.route("/login")
 def login():
+    """Validate user credentials and return profile details on success."""
     username = request.args.get("username")
     password = request.args.get("password")
 
@@ -61,18 +65,18 @@ def login():
             "full_name": user["full_name"],
             "role": user["role"]
         })
-    else:
-        return jsonify({"success": False, "message": "Invalid credentials"})
+    return jsonify({"success": False, "message": "Invalid credentials"})
 
 # ===================================
 # GET ALL DRONES BY TYPE
 # ===================================
 @app.route("/drones")
 def get_drones():
-    type = request.args.get("type")
+    """Fetch all drones filtered by drone type."""
+    drone_type = request.args.get("type")
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM drones WHERE type = %s", (type,))
+    cursor.execute("SELECT * FROM drones WHERE type = %s", (drone_type,))
     drones = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -83,7 +87,8 @@ def get_drones():
 # ===================================
 @app.route("/drones/recommend")
 def recommend_drone():
-    type          = request.args.get("type", "")
+    """Recommend the best matching drone based on mission constraints."""
+    drone_type    = request.args.get("type", "")
     range_km      = int(request.args.get("range_km", 0))
     payload_kg    = int(request.args.get("payload_kg", 0))
     endurance_hrs = float(request.args.get("endurance_hrs", 0))
@@ -101,7 +106,7 @@ def recommend_drone():
         AND payload_kg >= %s
         AND endurance_hrs >= %s
     """
-    params = [type, range_km, payload_kg, endurance_hrs]
+    params = [drone_type, range_km, payload_kg, endurance_hrs]
 
     if stealth_level:
         query += " AND stealth_level = %s"
@@ -113,7 +118,10 @@ def recommend_drone():
         query += " AND delivery_mode = %s"
         params.append(delivery_mode)
 
-    query += " ORDER BY FIELD(drone_condition, 'optimal', 'good', 'damaged', 'under_maintenance') LIMIT 1"
+    query += (
+        " ORDER BY FIELD(drone_condition, 'optimal', 'good', "
+        "'damaged', 'under_maintenance') LIMIT 1"
+    )
 
     cursor.execute(query, tuple(params))
     drone = cursor.fetchone()
@@ -122,8 +130,7 @@ def recommend_drone():
 
     if drone:
         return jsonify(drone)
-    else:
-        return jsonify({"message": "No drone found matching these parameters"})
+    return jsonify({"message": "No drone found matching these parameters"})
 
 # ===================================
 # RUN SERVER
