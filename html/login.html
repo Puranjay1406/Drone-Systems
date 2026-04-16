@@ -6,15 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../css/theme.css">
   <link rel="stylesheet" href="../css/login.css">
-  <script>
-    // If already logged in, skip login entirely
-    if (localStorage.getItem("isLoggedIn") === "true") {
-      const params = new URLSearchParams(window.location.search);
-      const next = params.get("next");
-      const safeNext = next && /^[a-zA-Z0-9_\-]+\.html$/.test(next) ? next : "index.html";
-      window.location.replace(safeNext);
-    }
-  </script>
 </head>
 <body class="login-page">
 
@@ -51,30 +42,23 @@
 
     <form class="login-form" id="loginForm">
       <div class="form-group">
-        <label class="form-label" for="username">OPERATOR ID</label>
-        <input id="username" name="username" type="text" class="form-input"
-               placeholder="Enter authorization code" autocomplete="username" required>
+        <label class="form-label">OPERATOR ID</label>
+        <input id="username" type="text" class="form-input" placeholder="Enter authorization code" required>
         <div class="input-line"></div>
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="password">ACCESS KEY</label>
-        <input id="password" name="password" type="password" class="form-input"
-               placeholder="Enter secure passphrase" autocomplete="current-password" required>
+        <label class="form-label">ACCESS KEY</label>
+        <input id="password" type="password" class="form-input" placeholder="Enter secure passphrase" required>
         <div class="input-line"></div>
       </div>
 
-      <p id="cred-error" class="form-error"
-         style="color:#ff6b6b; font-size:0.85rem; display:none; margin-bottom:0.5rem;" role="alert">
+      <p id="error-msg" style="color: red; font-size: 0.8rem; display: none; margin-bottom: 1rem;">
         Invalid credentials. Access denied.
       </p>
-      <p id="conn-error" class="form-error"
-         style="color:#ffb86b; font-size:0.85rem; display:none; margin-bottom:0.5rem;" role="alert">
-        Unable to reach the server. Please try again in a moment.
-      </p>
 
-      <button type="submit" class="btn btn-primary btn-full" id="loginBtn">
-        <span id="loginBtnLabel">AUTHENTICATE</span>
+      <button type="submit" class="btn btn-primary btn-full">
+        <span>AUTHENTICATE</span>
         <span class="btn-arrow">→</span>
       </button>
 
@@ -90,66 +74,32 @@
 </section>
 
 <script>
-  const form     = document.getElementById("loginForm");
-  const credErr  = document.getElementById("cred-error");
-  const connErr  = document.getElementById("conn-error");
-  const btn      = document.getElementById("loginBtn");
-  const btnLabel = document.getElementById("loginBtnLabel");
-
-  function safeNextFromQuery() {
-    const params = new URLSearchParams(window.location.search);
-    const next = params.get("next");
-    return next && /^[a-zA-Z0-9_\-]+\.html$/.test(next) ? next : "index.html";
-  }
-
-  form.addEventListener("submit", async function (e) {
+  document.getElementById("loginForm").addEventListener("submit", async function (e) {
     e.preventDefault();
-
-    credErr.style.display = "none";
-    connErr.style.display = "none";
 
     const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value;
-
-    btn.disabled = true;
-    btnLabel.textContent = "AUTHENTICATING…";
+    const errorMsg = document.getElementById("error-msg");
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/login", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
-
-      if (response.status === 401 || response.status === 400) {
-        credErr.style.display = "block";
-        return;
-      }
-
-      if (!response.ok) {
-        connErr.style.display = "block";
-        return;
-      }
-
+      const response = await fetch(
+        `http://127.0.0.1:5000/login?username=${username}&password=${password}`
+      );
       const data = await response.json();
-      if (!data.success) {
-        credErr.style.display = "block";
-        return;
+
+      if (data.success) {
+        // store user info for use across pages
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("username", data.username);
+        localStorage.setItem("full_name", data.full_name);
+        localStorage.setItem("role", data.role);
+        window.location.replace("index.html");
+      } else {
+        errorMsg.style.display = "block";
       }
-
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("username", data.username || "");
-      localStorage.setItem("full_name", data.full_name || "");
-      localStorage.setItem("role", data.role || "");
-
-      window.location.replace(safeNextFromQuery());
-    } catch (err) {
-      console.error(err);
-      connErr.style.display = "block";
-    } finally {
-      btn.disabled = false;
-      btnLabel.textContent = "AUTHENTICATE";
+    } catch (error) {
+      errorMsg.textContent = "Could not connect to server. Make sure the backend is running.";
+      errorMsg.style.display = "block";
     }
   });
 </script>

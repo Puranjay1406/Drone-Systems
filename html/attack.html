@@ -8,8 +8,7 @@
   <link rel="stylesheet" href="../css/attack.css">
   <script>
     if (localStorage.getItem("isLoggedIn") !== "true") {
-      const here = window.location.pathname.split("/").pop() || "attack.html";
-      window.location.replace(`login.html?next=${encodeURIComponent(here)}`);
+      window.location.replace("brief.html");
     }
   </script>
 </head>
@@ -119,28 +118,21 @@
             <span class="spec-val" id="attack-stealth-val">—</span>
           </div>
         </div>
+
+        <button class="attack-btn">SELECT DRONE</button>
       </div>
     </div>
   </div>
 </section>
 
 <script>
-  document.getElementById("logoutBtn").addEventListener("click", async function (e) {
-    e.preventDefault();
-    try {
-      await fetch("http://127.0.0.1:5000/logout", {
-        method: "POST",
-        credentials: "include",
-      });
-    } catch (err) {
-      console.error(err);
-    }
+  document.getElementById("logoutBtn").onclick = function () {
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("username");
     localStorage.removeItem("full_name");
     localStorage.removeItem("role");
     window.location.replace("brief.html");
-  });
+  };
 
   document.getElementById("attack-btn").addEventListener("click", async function () {
     const distance = document.getElementById("attack-distance").value;
@@ -157,19 +149,10 @@
     if (stealth)  params.append("stealth_level", stealth);
 
     try {
-      const response = await fetch(`http://127.0.0.1:5000/drones/recommend?${params}`, {
-        credentials: "include",
-      });
-
-      if (response.status === 401) {
-        localStorage.removeItem("isLoggedIn");
-        window.location.replace("login.html?next=attack.html");
-        return;
-      }
-
+      const response = await fetch(`http://127.0.0.1:5000/drones/recommend?${params}`);
       const drone = await response.json();
 
-      if (drone && drone.name) {
+      if (drone.name) {
         document.getElementById("attack-name").textContent        = drone.name;
         document.getElementById("attack-sensors").textContent     = drone.sensors;
         document.getElementById("attack-range").textContent       = drone.range_km + " km";
@@ -183,9 +166,8 @@
         document.getElementById("attack-sensors").textContent = "Try adjusting your mission parameters.";
       }
     } catch (error) {
-      console.error(error);
       document.getElementById("attack-name").textContent    = "Connection error";
-      document.getElementById("attack-sensors").textContent = "We couldn't reach the system. Please try again in a moment.";
+      document.getElementById("attack-sensors").textContent = "Make sure the backend is running on port 5000.";
     }
   });
 </script>
